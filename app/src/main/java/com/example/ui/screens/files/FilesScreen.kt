@@ -9,13 +9,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -169,46 +173,23 @@ fun FilesScreen(
 
     Scaffold(
         containerColor = Color.Transparent,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    if (selectedFolderBook != null) showCreateChapterDialog = true
-                    else showCreateBookDialog = true
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = CircleShape,
-                modifier = Modifier
-                    .size(56.dp)
-                    .testTag("files_create_fab")
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = if (selectedFolderBook != null) "Buat Bab Baru" else "Buat Berkas / Buku Baru",
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        topBar = {
             // Top Bar: Hamburger (or Back when inside folder), "Berkas", Search, Sort, More (Screenshot 1)
             Surface(
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
                 tonalElevation = 2.dp,
-                modifier = Modifier.fillMaxWidth().statusBarsPadding()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
                         .padding(horizontal = 14.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                         if (selectedFolderBook != null) {
                             IconButton(onClick = { selectedFolderBook = null }) {
                                 Icon(
@@ -322,6 +303,33 @@ fun FilesScreen(
                     }
                 }
             }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    if (selectedFolderBook != null) showCreateChapterDialog = true
+                    else showCreateBookDialog = true
+                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shape = CircleShape,
+                modifier = Modifier
+                    .size(56.dp)
+                    .testTag("files_create_fab")
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = if (selectedFolderBook != null) "Buat Bab Baru" else "Buat Berkas / Buku Baru",
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
 
             // Sub-bar Breadcrumb: Down chevron "v" and "Buku-buku saya >" (Screenshot 1)
             Row(

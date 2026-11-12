@@ -1,10 +1,15 @@
 package com.example
 
+import android.graphics.Color as AndroidColor
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,6 +80,28 @@ class MainActivity : ComponentActivity() {
         setContent {
             val preferences by mainViewModel.preferences.collectAsStateWithLifecycle()
             val isUnlocked by mainViewModel.isUnlocked.collectAsStateWithLifecycle()
+            val isSystemDark = isSystemInDarkTheme()
+            val isDarkTheme = when (preferences.themeMode.uppercase()) {
+                "LIGHT", "SEPIA" -> false
+                "SYSTEM" -> isSystemDark
+                else -> true
+            }
+
+            DisposableEffect(isDarkTheme) {
+                enableEdgeToEdge(
+                    statusBarStyle = if (isDarkTheme) {
+                        SystemBarStyle.dark(AndroidColor.TRANSPARENT)
+                    } else {
+                        SystemBarStyle.light(AndroidColor.TRANSPARENT, AndroidColor.TRANSPARENT)
+                    },
+                    navigationBarStyle = if (isDarkTheme) {
+                        SystemBarStyle.dark(AndroidColor.TRANSPARENT)
+                    } else {
+                        SystemBarStyle.light(AndroidColor.TRANSPARENT, AndroidColor.TRANSPARENT)
+                    }
+                )
+                onDispose {}
+            }
 
             NovelDeskTheme(themeMode = preferences.themeMode) {
                 AppBackgroundContainer(preferences = preferences) {
@@ -143,6 +171,7 @@ fun NovelDeskApp(
     ) {
         Scaffold(
             containerColor = Color.Transparent,
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
                 if (shouldShowBottomBar) {
@@ -196,7 +225,10 @@ fun NovelDeskApp(
             NavHost(
                 navController = navController,
                 startDestination = Screen.Library.route, // Default screen "Buku" (Screenshot 2)
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding)
             ) {
                 // Tab 1: "Buku" (Screenshot 2)
                 composable(Screen.Library.route) {

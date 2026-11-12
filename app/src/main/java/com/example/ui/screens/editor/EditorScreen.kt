@@ -9,15 +9,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -138,17 +143,20 @@ fun EditorScreen(
 
     Scaffold(
         containerColor = Color.Transparent,
-        modifier = Modifier
-            .fillMaxSize()
-            .imePadding(),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        modifier = Modifier.fillMaxSize(),
         topBar = {
             if (!isFocusMode) {
                 Surface(
                     color = MaterialTheme.colorScheme.surface,
                     tonalElevation = 2.dp,
-                    modifier = Modifier.fillMaxWidth().statusBarsPadding()
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
+                    ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -330,7 +338,11 @@ fun EditorScreen(
         },
         bottomBar = {
             if (!isFocusMode && !isPreviewMarkdown) {
-                Column(modifier = Modifier.navigationBarsPadding()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))
+                ) {
                     // Quick Chapter Switcher bar (if editing book chapter)
                     if (docType == "CHAPTER" && (prevChapter != null || nextChapter != null)) {
                         Surface(
@@ -406,10 +418,16 @@ fun EditorScreen(
             }
         }
     ) { innerPadding ->
+        val extraInsetsModifier = when {
+            isFocusMode -> Modifier.windowInsetsPadding(WindowInsets.safeDrawing.union(WindowInsets.ime))
+            isPreviewMarkdown -> Modifier.windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal))
+            else -> Modifier
+        }
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .then(extraInsetsModifier)
         ) {
             val scrollState = rememberScrollState()
 
@@ -489,7 +507,7 @@ fun EditorScreen(
                     onClick = { viewModel.toggleFocusMode() },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(top = 40.dp, end = 16.dp)
+                        .padding(top = 12.dp, end = 16.dp)
                         .size(42.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))

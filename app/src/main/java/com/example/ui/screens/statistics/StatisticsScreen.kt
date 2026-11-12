@@ -12,12 +12,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -159,22 +163,19 @@ fun StatisticsScreen(
     }
 
     Scaffold(
-        containerColor = Color.Transparent
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        topBar = {
             // Top Bar with Hamburger, Tabs ("Statistik" & "Distribusi"), and Action Icons (Screenshot 5)
             Surface(
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
                 tonalElevation = 2.dp,
-                modifier = Modifier.fillMaxWidth().statusBarsPadding()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
                         .padding(horizontal = 14.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -285,13 +286,16 @@ fun StatisticsScreen(
                     }
                 }
             }
-
-            // Scrollable Content
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 88.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
+        }
+    ) { innerPadding ->
+        // Scrollable Content
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
                 if (selectedTab == "STATISTIK") {
                     // Card 1: "Tren - Literal" with Smooth Area Curve Chart (Screenshot 5)
                     item {
@@ -579,7 +583,6 @@ fun StatisticsScreen(
             }
         }
     }
-}
 
 @Composable
 private fun DistributionRow(label: String, count: Int, total: Int, color: Color) {
