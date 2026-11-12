@@ -1,0 +1,6 @@
+{
+  "name": "Novel Desk",
+  "description": "Aplikasi penulisan novel, buku, cerita, dan catatan profesional dengan editor kaya fitur, statistik kata, dan manajemen alur cerita.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
